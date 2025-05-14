@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Unit Converter - Scientific & Engineering Conversions</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        nav {
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-list button {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .nav-list button.active,
+        .nav-list button:hover {
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .converter-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .converter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input, select {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button.convert-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        button.convert-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .result-section {
+            text-align: center;
+            font-size: 1.5rem;
+            padding: 1rem;
+            background-color: #e9f5ff;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .nav-list {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Universal Unit Converter</h1>
+            <p>Convert between various scientific and engineering units</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul class="nav-list">
+                <li><button class="active" data-category="length">Length</button></li>
+                <li><button data-category="weight">Weight</button></li>
+                <li><button data-category="temperature">Temperature</button></li>
+                <li><button data-category="volume">Volume</button></li>
+                <li><button data-category="time">Time</button></li>
+                <li><button data-category="engineering">Engineering</button></li>
+                <li><button data-category="electricity">Electricity</button></li>
+                <li><button data-category="heat">Heat</button></li>
+                <li><button data-category="magnetism">Magnetism</button></li>
+                <li><button data-category="fluids">Fluids</button></li>
+                <li><button data-category="radiology">Radiology</button></li>
+                <li><button data-category="light">Light</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="converter-section">
+            <form class="converter-form" id="converterForm">
+                <div class="input-group">
+                    <label>Value to convert:</label>
+                    <input type="number" id="inputValue" step="any" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>From unit:</label>
+                    <select id="fromUnit"></select>
+                </div>
+
+                <div class="input-group">
+                    <label>To unit:</label>
+                    <select id="toUnit"></select>
+                </div>
+
+                <button type="submit" class="convert-btn">Convert</button>
+            </form>
+
+            <div class="result-section" id="resultSection">
+                Result will be displayed here
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2023 Universal Unit Converter. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const units = {
+            length: {
+                meters: 1,
+                kilometers: 1000,
+                centimeters: 0.01,
+                millimeters: 0.001,
+                miles: 1609.34,
+                yards: 0.9144,
+                feet: 0.3048,
+                inches: 0.0254
+            },
+            weight: {
+                kilograms: 1,
+                grams: 0.001,
+                milligrams: 0.000001,
+                pounds: 0.453592,
+                ounces: 0.0283495,
+                tons: 907.185
+            },
+            temperature: {
+                celsius: 'celsius',
+                fahrenheit: 'fahrenheit',
+                kelvin: 'kelvin'
+            },
+            volume: {
+                liters: 1,
+                milliliters: 0.001,
+                cubicmeters: 1000,
+                cubicfeet: 28.3168,
+                gallons: 3.78541,
+                pints: 0.473176
+            },
+            time: {
+                seconds: 1,
+                minutes: 60,
+                hours: 3600,
+                days: 86400,
+                weeks: 604800,
+                months: 2629800,
+                years: 31557600
+            },
+            engineering: {
+                pascal: 1,
+                bar: 100000,
+                psi: 6894.76,
+                atmosphere: 101325,
+                torr: 133.322,
+                newton: 1,
+                poundforce: 4.44822,
+                joule: 1,
+                'foot-pound': 1.35582
+            },
+            electricity: {
+                volt: 1,
+                millivolt: 0.001,
+                kilovolt: 1000,
+                ampere: 1,
+                milliampere: 0.001,
+                ohm: 1,
+                kilohm: 1000,
+                siemens: 1,
+                watt: 1,
+                kilowatt: 1000
+            },
+            heat: {
+                kelvin: 1,
+                'btu-hour': 0.293071,
+                'calorie-second': 4.1868,
+                'watt-per-kelvin': 1,
+                'watt-per-meter-kelvin': 1,
+                'btu-per-hour-foot-fahrenheit': 1.73073
+            },
+            magnetism: {
+                tesla: 1,
+                gauss: 0.0001,
+                weber: 1,
+                maxwell: 0.00000001,
+                henry: 1,
+                'ampere-turn': 1.25664e-6
+            },
+            fluids: {
+                'cubic-meter': 1,
+                liter: 0.001,
+                gallon: 0.00378541,
+                'pound-per-square-inch': 6894.76,
+                poise: 0.1,
+                'pascal-second': 1
+            },
+            radiology: {
+                gray: 1,
+                sievert: 1,
+                rad: 0.01,
+                rem: 0.01,
+                becquerel: 1,
+                curie: 3.7e10
+            },
+            light: {
+                lux: 1,
+                'foot-candle': 10.7639,
+                phot: 10000,
+                lumen: 1,
+                candela: 1
+            }
+        };
+
+        let currentCategory = 'length';
+        const navButtons = document.querySelectorAll('.nav-list button');
+        const fromUnitSelect = document.getElementById('fromUnit');
+        const toUnitSelect = document.getElementById('toUnit');
+        const converterForm = document.getElementById('converterForm');
+        const resultSection = document.getElementById('resultSection');
+
+        // Initialize converter
+        populateUnits(currentCategory);
+
+        // Navigation handling
+        navButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                currentCategory = e.target.dataset.category;
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                populateUnits(currentCategory);
+            });
+        });
+
+        // Form submission
+        converterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inputValue = parseFloat(document.getElementById('inputValue').value);
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+
+            let result;
+            if (currentCategory === 'temperature') {
+                result = convertTemperature(inputValue, fromUnit, toUnit);
+            } else {
+                result = convertStandard(inputValue, fromUnit, toUnit);
+            }
+
+            resultSection.textContent = `${inputValue} ${fromUnit} = ${result.toFixed(4)} ${toUnit}`;
+        });
+
+        function populateUnits(category) {
+            const unitOptions = Object.keys(units[category])
+                .map(unit => `<option value="${unit}">${unit.charAt(0).toUpperCase() + unit.slice(1)}</option>`)
+                .join('');
+
+            fromUnitSelect.innerHTML = unitOptions;
+            toUnitSelect.innerHTML = unitOptions;
+        }
+
+        function convertStandard(value, fromUnit, toUnit) {
+            const baseValue = value * units[currentCategory][fromUnit];
+            return baseValue / units[currentCategory][toUnit];
+        }
+
+        function convertTemperature(value, fromUnit, toUnit) {
+            if (fromUnit === toUnit) return value;
+            
+            // Convert to Celsius first
+            let celsius;
+            switch(fromUnit) {
+                case 'celsius':
+                    celsius = value;
+                    break;
+                case 'fahrenheit':
+                    celsius = (value - 32) * 5/9;
+                    break;
+                case 'kelvin':
+                    celsius = value - 273.15;
+                    break;
+            }
+
+            // Convert from Celsius to target unit
+            switch(toUnit) {
+                case 'celsius':
+                    return celsius;
+                case 'fahrenheit':
+                    return (celsius * 9/5) + 32;
+                case 'kelvin':
+                    return celsius + 273.15;
+            }
+        }
+    </script>
+</body>
+</html>
